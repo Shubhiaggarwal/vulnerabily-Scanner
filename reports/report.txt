@@ -1,0 +1,29 @@
+=== Vulnerability Report ===
+
+URL: http://testphp.vulnweb.com
+
+SQL Injection:
+["http://testphp.vulnweb.com?id='", "http://testphp.vulnweb.com?id=' OR '1'='1", 'http://testphp.vulnweb.com?id=" OR "1"="1']
+
+XSS:
+No XSS found
+
+Admin Panels:
+['http://testphp.vulnweb.com/admin']
+
+Open Ports:
+[80]
+
+Directories Found:
+['http://testphp.vulnweb.com/images']
+
+Sensitive Files:
+No sensitive files exposed
+
+Risk Ratings:
+SQL Injection: High
+XSS: Low
+Open Ports: Medium
+Admin Panel Exposure: High
+Directory Exposure: Medium
+Sensitive Files: Low
