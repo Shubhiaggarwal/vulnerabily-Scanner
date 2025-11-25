@@ -1,0 +1,115 @@
+/* ===== Global Page Styling ===== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+    color: #f2f2f2;
+    overflow-x: hidden;
+}
+
+/* ===== Container Card ===== */
+.container {
+    width: 60%;
+    margin: 50px auto;
+    background: #121212;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 0 25px rgba(0, 255, 150, 0.25);
+    border: 1px solid rgba(0, 255, 150, 0.3);
+    animation: fadeIn 0.7s ease-in-out;
+}
+
+/* ===== Heading ===== */
+h1 {
+    text-align: center;
+    font-size: 2.4rem;
+    color: #00ff9d;
+    text-shadow: 0px 0px 12px rgba(0, 255, 170, 0.7);
+}
+
+h2 {
+    margin-top: 35px;
+    color: #00ffa6;
+    border-left: 4px solid #00ffa6;
+    padding-left: 12px;
+    font-size: 1.4rem;
+}
+
+/* ===== Input Box ===== */
+input[type="text"] {
+    width: 95%;
+    padding: 12px;
+    border-radius: 10px;
+    outline: none;
+    border: 2px solid #00ffa6;
+    background: #0c0c0c;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #0affc7;
+    box-shadow: 0 0 15px rgba(0, 255, 200, 0.4);
+}
+
+/* ===== Buttons ===== */
+button, a.button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #00ffaa;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.3s ease;
+}
+
+button:hover,
+a.button:hover {
+    background: #00ffc8;
+    transform: scale(1.08);
+    box-shadow: 0 0 15px rgba(0, 255, 190, 0.7);
+}
+
+/* ===== Preformatted Text (Results) ===== */
+pre {
+    background: #0d0d0d;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 3px solid #00ffcc;
+    color: #e8e8e8;
+    overflow-x: auto;
+}
+
+/* ===== Back Link ===== */
+a {
+    color: #00ffaa;
+    text-decoration: none;
+}
+
+a:hover {
+    text-shadow: 0px 0px 8px #00ffcc;
+}
+
+/* ===== Fade Animation ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .container {
+        width: 85%;
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 1.9rem;
+    }
+}

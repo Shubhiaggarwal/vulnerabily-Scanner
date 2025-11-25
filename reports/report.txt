@@ -1,29 +1,29 @@
 === Vulnerability Report ===
 
-URL: http://testphp.vulnweb.com
+URL: https://iiitd-team13.vercel.app
 
 SQL Injection:
-["http://testphp.vulnweb.com?id='", "http://testphp.vulnweb.com?id=' OR '1'='1", 'http://testphp.vulnweb.com?id=" OR "1"="1']
+No SQLi detected
 
 XSS:
 No XSS found
 
 Admin Panels:
-['http://testphp.vulnweb.com/admin']
+None found
 
 Open Ports:
-[80]
+[80, 443]
 
 Directories Found:
-['http://testphp.vulnweb.com/images']
+['https://iiitd-team13.vercel.app/robots.txt']
 
 Sensitive Files:
 No sensitive files exposed
 
 Risk Ratings:
-SQL Injection: High
+SQL Injection: Low
 XSS: Low
 Open Ports: Medium
-Admin Panel Exposure: High
+Admin Panel Exposure: Low
 Directory Exposure: Medium
 Sensitive Files: Low

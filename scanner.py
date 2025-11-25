@@ -6,6 +6,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
+import matplotlib
+matplotlib.use('Agg')  # Disable Tkinter backend
 
 
 import os
@@ -120,26 +122,73 @@ def risk_rating(vulns):
         return "High"
     return "Low"
 #--------screen shorts of website------
+
+        # --------------------------------------
+
 def take_screenshot(url, filename):
     try:
-        # Create folder if not exists
-        if not os.path.exists("screenshots"):
-            os.makedirs("screenshots")
+        # Create folder automatically
+        folder = "static/screenshots"
+        os.makedirs(folder, exist_ok=True)
 
-        # Launch Chrome
+        # Start Chrome
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-        
         driver.get(url)
-        time.sleep(2)  # wait to load fully
-        
-        driver.save_screenshot(f"screenshots/{filename}.png")
+        time.sleep(3)
+
+        # Save screenshot
+        path = os.path.join(folder, f"{filename}.png")
+        driver.save_screenshot(path)
         driver.quit()
 
-        print(f"📸 Screenshot saved: screenshots/{filename}.png")
+        print("📸 Screenshot saved:", path)
+        return path
 
     except Exception as e:
         print("❌ Screenshot Error:", e)
+        try:
+            driver.quit()
+        except:
+            pass
+        return None
 
+
+
+#-------------pie chart---------
+import matplotlib.pyplot as plt
+
+def generate_risk_pie_chart(sql, xss, panels, dirs, sensitive):
+    # Assign CVSS-like weights
+    scores = [
+        9.8 if sql else 0,
+        6.1 if xss else 0,
+        7.5 if panels else 0,
+        6.0 if dirs else 0,
+        9.0 if sensitive else 0
+    ]
+
+    labels = ["SQL Injection", "XSS", "Admin Panels", "Directories", "Sensitive Files"]
+
+    # Remove items with zero score
+    filtered_labels = []
+    filtered_scores = []
+    for l, s in zip(labels, scores):
+        if s > 0:
+            filtered_labels.append(l)
+            filtered_scores.append(s)
+
+    if not filtered_scores:
+        print("⚠ No vulnerabilities found — pie chart skipped.")
+        return
+
+    plt.figure(figsize=(7,7))
+    plt.pie(filtered_scores, labels=filtered_labels, autopct='%1.1f%%')
+    plt.title("Risk Distribution (CVSS 3.1)")
+    plt.savefig("reports/risk_piechart.png")
+    plt.close()
+
+    print("📊 Pie chart saved: reports/risk_piechart.png")
+ 
 # -----------------------------
 #      START SCANNING
 # -----------------------------
@@ -147,42 +196,72 @@ def start_scan(url):
     url = clean_url(url)
     print("\n🔍 Starting Vulnerability Scan...\n")
 
+    screenshot_paths = {}
+
     domain = url.replace("http://", "").replace("https://", "").split("/")[0]
 
     # SQL Injection
     sql_vulns = check_sql_injection(url)
     print("✔ SQL Injection Scan Completed")
     if sql_vulns:
-     take_screenshot(sql_vulns[0], "sql_injection_proof")
+      screenshot_paths["sql"] = take_screenshot(sql_vulns[0], "sql_injection_proof")
+    else:
+      screenshot_paths["sql"] = None
+
 
 
     # XSS
     xss = check_xss(url)
     print("✔ XSS Scan Completed")
     if xss:
-     take_screenshot(url + "?q=<script>alert('XSS')</script>", "xss_proof")
+     screenshot_paths["xss"] = take_screenshot(url + "?q=<script>alert('XSS')</script>", "xss_proof")
+    else:
+     screenshot_paths["xss"] = None
 
 
     # Admin Panel Finder
     panels = admin_panel_scan(url)
     print("✔ Admin Panel Scan Completed")
     if panels:
-     take_screenshot(panels[0], "admin_panel")
+     screenshot_paths["admin"] = take_screenshot(panels[0], "admin_panel")
+    else:
+     screenshot_paths["admin"] = None
 
     # Directory Brute Forcing
     dirs = directory_scan(url)
     print("✔ Directory Scan Completed")
     if dirs:
-     take_screenshot(dirs[0], "directory_proof")
+      screenshot_paths["directory"] = take_screenshot(dirs[0], "directory_proof")
+    else:
+      screenshot_paths["directory"] = None
+
     # Sensitive File Detection
     sensitive = sensitive_file_scan(url)
     print("✔ Sensitive File Scan Completed")
     if sensitive:
-     take_screenshot(sensitive[0], f"sensitive_{sensitive[0].split('/')[-1]}")
+      screenshot_paths["sensitive"] = take_screenshot(
+        sensitive[0],
+        f"sensitive_{sensitive[0].split('/')[-1]}"
+    )
+    else:
+      screenshot_paths["sensitive"] = None
+
 
     # Port Scanning
     ports = port_scanner(domain)
     print("✔ Port Scan Completed\n")
+    # Port Scanning
+    ports = port_scanner(domain)
+    print("✔ Port Scan Completed\n")
+    # Generate Risk Pie Chart
+    generate_risk_pie_chart(
+    sql=bool(sql_vulns),
+    xss=xss,
+    panels=bool(panels),
+    dirs=bool(dirs),
+    sensitive=bool(sensitive)
+)
+
 
     # SAVE REPORT
     with open("reports/report.txt", "w") as f:
@@ -215,10 +294,43 @@ def start_scan(url):
         f.write(f"Directory Exposure: {'Medium' if dirs else 'Low'}\n")
         f.write(f"Sensitive Files: {'Critical' if sensitive else 'Low'}\n")
 
+    risk_ratings = {
+    "sql": risk_rating(sql_vulns),
+    "xss": "High" if xss else "Low",
+    "ports": "Medium" if ports else "Low",
+    "admin": "High" if panels else "Low",
+    "directories": "Medium" if dirs else "Low",
+    "sensitive": "Critical" if sensitive else "Low"
+}
+    result = {
+    "cleaned_url": url,
+    "sql_injection": sql_vulns,
+    "xss": xss,
+    "admin_panels": panels,
+    "directories": dirs,
+    "sensitive_files": sensitive,
+    "ports": ports,
+    "risk": risk_ratings,
+    "screenshots": screenshot_paths
 
-    print("📄 Report saved to reports/report.txt")
-    print("\n🎉 Scan Completed!")
+}
+    return result
+
+
+
+print("📄 Report saved to reports/report.txt")
+print("\n🎉 Scan Completed!")
 
 # RUN
-url = clean_url(input("Enter website URL (with http/https): "))
-start_scan(url)
+#url = clean_url(input("Enter website URL (with http/https): "))
+# start_scan(url)
+# -----------------------------------
+# DO NOT RUN ANYTHING AUTOMATICALLY
+# -----------------------------------
+
+# The main function Flask will call:
+def run_scanner(url):
+    return start_scan(url)
+
+
+

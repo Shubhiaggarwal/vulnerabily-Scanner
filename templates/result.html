@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Results</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🔐 Scan Results</h1>
+    <p>For: <b>{{ url }}</b></p>
+
+    <h2>Cleaned URL</h2>
+    <p>{{ result.cleaned_url }}</p>
+
+    <h2>SQL Injection</h2>
+    {% if result.sql_injection %}
+        <pre>{{ result.sql_injection }}</pre>
+    {% else %}
+        <p>No SQL Injection found.</p>
+    {% endif %}
+
+    <h2>XSS</h2>
+    {% if result.xss %}
+        <p>🔥 XSS Detected</p>
+    {% else %}
+        <p>No XSS found.</p>
+    {% endif %}
+
+    <h2>Admin Panels</h2>
+
+{% if result.admin_panels and result.admin_panels|length > 0 %}
+    <ul>
+        {% for p in result.admin_panels %}
+            <li>{{ p }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    No admin panels detected.
+{% endif %}
+
+
+    <h2>Directories</h2>
+    {% if result.directories %}
+        <pre>{{ result.directories }}</pre>
+    {% else %}
+        <p>No exposed directories found.</p>
+    {% endif %}
+
+    <h2>Sensitive Files</h2>
+    {% if result.sensitive_files %}
+        <pre>{{ result.sensitive_files }}</pre>
+    {% else %}
+        <p>No sensitive files exposed.</p>
+    {% endif %}
+
+    <h2>Open Ports</h2>
+    <pre>{{ result.ports }}</pre>
+
+    <h2>Risk Pie Chart</h2>
+    {% if result.pie_chart %}
+        <img src="/{{ result.pie_chart }}" width="400">
+    {% else %}
+        <p>No chart generated.</p>
+    {% endif %}
+    <h2>📸 Screenshots</h2>
+
+{% for name, path in result.screenshots.items() %}
+    {% if path %}
+        <div class="shot-box">
+            <h3>{{ name.upper() }}</h3>
+            <img src="/{{ path }}" class="screenshot-img">
+        </div>
+    {% endif %}
+{% endfor %}
+     
+<a href="/screenshots" class="btn btn-primary" style="margin-top:20px;">
+    View Screenshots 📸
+</a>
+
+    <br><br>
+    <a href="/" class="btn">🔄 Scan another website</a>
+
+</div>
+
+</body>
+</html>
