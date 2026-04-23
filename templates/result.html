@@ -1,86 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Scan Results</title>
     <link rel="stylesheet" href="/static/style.css">
+
+   <style>
+    body {
+        background: #f4f6f9;   /* Light grey background */
+        font-family: Arial, sans-serif;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .card {
+        background: #ffffff;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border-left: 6px solid #007bff;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    h2 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    p, pre, li {
+        color: #444;
+        font-size: 15px;
+    }
+
+    pre {
+        background: #f1f1f1;
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+    }
+
+    .badge {
+        padding: 5px 14px;
+        border-radius: 20px;
+        color: white;
+        font-size: 13px;
+        margin-bottom: 10px;
+        display: inline-block;
+    }
+
+    .high { background: #dc3545; }
+    .medium { background: #ffc107; color: #000; }
+    .safe { background: #28a745; }
+
+    .screenshot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .screenshot-img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: #fff;
+    }
+
+    .btn {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 18px;
+        background: #007bff;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+</style>
+
 </head>
+
 <body>
 
 <div class="container">
 
     <h1>🔐 Scan Results</h1>
-    <p>For: <b>{{ url }}</b></p>
+    <p><strong>Target URL:</strong> {{ url }}</p>
 
-    <h2>Cleaned URL</h2>
-    <p>{{ result.cleaned_url }}</p>
+    <!-- Cleaned URL -->
+    <div class="card">
+        <h2>Cleaned URL</h2>
+        <p>{{ result.cleaned_url }}</p>
+    </div>
 
-    <h2>SQL Injection</h2>
-    {% if result.sql_injection %}
-        <pre>{{ result.sql_injection }}</pre>
-    {% else %}
-        <p>No SQL Injection found.</p>
-    {% endif %}
+    <!-- SQL Injection -->
+    <div class="card">
+        <h2>SQL Injection</h2>
+        {% if result.sql_injection %}
+            <span class="badge high">High Risk</span>
+            <pre>{{ result.sql_injection }}</pre>
+        {% else %}
+            <span class="badge safe">Safe</span>
+            <p>No SQL Injection detected.</p>
+        {% endif %}
+    </div>
 
-    <h2>XSS</h2>
-    {% if result.xss %}
-        <p>🔥 XSS Detected</p>
-    {% else %}
-        <p>No XSS found.</p>
-    {% endif %}
+    <!-- XSS -->
+    <div class="card">
+        <h2>Cross-Site Scripting (XSS)</h2>
+        {% if result.xss %}
+            <span class="badge high">Detected</span>
+            <p>⚠️ XSS vulnerability found.</p>
+        {% else %}
+            <span class="badge safe">Safe</span>
+            <p>No XSS vulnerability detected.</p>
+        {% endif %}
+    </div>
 
-    <h2>Admin Panels</h2>
+    <!-- Admin Panels -->
+    <div class="card">
+        <h2>Admin Panels</h2>
+        {% if result.admin_panels and result.admin_panels|length > 0 %}
+            <span class="badge medium">Found</span>
+            <ul>
+                {% for p in result.admin_panels %}
+                    <li>{{ p }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <span class="badge safe">Safe</span>
+            <p>No admin panels detected.</p>
+        {% endif %}
+    </div>
 
-{% if result.admin_panels and result.admin_panels|length > 0 %}
-    <ul>
-        {% for p in result.admin_panels %}
-            <li>{{ p }}</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    No admin panels detected.
-{% endif %}
+    <!-- Directories -->
+    <div class="card">
+        <h2>Exposed Directories</h2>
+        {% if result.directories %}
+            <span class="badge medium">Found</span>
+            <pre>{{ result.directories }}</pre>
+        {% else %}
+            <span class="badge safe">Safe</span>
+            <p>No exposed directories found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Sensitive Files -->
+    <div class="card">
+        <h2>Sensitive Files</h2>
+        {% if result.sensitive_files %}
+            <span class="badge high">High Risk</span>
+            <pre>{{ result.sensitive_files }}</pre>
+        {% else %}
+            <span class="badge safe">Safe</span>
+            <p>No sensitive files exposed.</p>
+        {% endif %}
+    </div>
+
+    <!-- Open Ports -->
+    <div class="card">
+        <h2>Open Ports</h2>
+        <pre>{{ result.ports }}</pre>
+    </div>
+
+    <!-- Risk Chart -->
+    <div class="card">
+        <h2>📊 Risk Analysis</h2>
+        {% if result.pie_chart %}
+            <img src="/{{ result.pie_chart }}" width="350">
+        {% else %}
+            <p>No chart generated.</p>
+        {% endif %}
+    </div>
+
+    <!-- Screenshots -->
+    <div class="card">
+    <h2>📸 Proof of Vulnerabilities</h2>
+    
+    <!-- Single button to go to all screenshots for this scan -->
+    <a href="/screenshots" class="btn">
+        View Screenshots
+    </a>
+</div>
 
 
-    <h2>Directories</h2>
-    {% if result.directories %}
-        <pre>{{ result.directories }}</pre>
-    {% else %}
-        <p>No exposed directories found.</p>
-    {% endif %}
 
-    <h2>Sensitive Files</h2>
-    {% if result.sensitive_files %}
-        <pre>{{ result.sensitive_files }}</pre>
-    {% else %}
-        <p>No sensitive files exposed.</p>
-    {% endif %}
-
-    <h2>Open Ports</h2>
-    <pre>{{ result.ports }}</pre>
-
-    <h2>Risk Pie Chart</h2>
-    {% if result.pie_chart %}
-        <img src="/{{ result.pie_chart }}" width="400">
-    {% else %}
-        <p>No chart generated.</p>
-    {% endif %}
-    <h2>📸 Screenshots</h2>
-
-{% for name, path in result.screenshots.items() %}
-    {% if path %}
-        <div class="shot-box">
-            <h3>{{ name.upper() }}</h3>
-            <img src="/{{ path }}" class="screenshot-img">
-        </div>
-    {% endif %}
-{% endfor %}
-     
-<a href="/screenshots" class="btn btn-primary" style="margin-top:20px;">
-    View Screenshots 📸
-</a>
-
-    <br><br>
-    <a href="/" class="btn">🔄 Scan another website</a>
+    <!-- Actions -->
+    <a href="/" class="btn">🔄 Scan Another Website</a>
 
 </div>
 

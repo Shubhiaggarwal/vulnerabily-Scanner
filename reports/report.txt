@@ -1,9 +1,9 @@
 === Vulnerability Report ===
 
-URL: https://iiitd-team13.vercel.app
+URL: https://owasp.org/www-project-webgoat
 
 SQL Injection:
-No SQLi detected
+["https://owasp.org/www-project-webgoat?id='", "https://owasp.org/www-project-webgoat?id=' OR '1'='1", 'https://owasp.org/www-project-webgoat?id=" OR "1"="1']
 
 XSS:
 No XSS found
@@ -12,18 +12,18 @@ Admin Panels:
 None found
 
 Open Ports:
-[80, 443]
+[80, 443, 8080]
 
 Directories Found:
-['https://iiitd-team13.vercel.app/robots.txt']
+No exposed directories found
 
 Sensitive Files:
 No sensitive files exposed
 
 Risk Ratings:
-SQL Injection: Low
+SQL Injection: High
 XSS: Low
 Open Ports: Medium
 Admin Panel Exposure: Low
-Directory Exposure: Medium
+Directory Exposure: Low
 Sensitive Files: Low

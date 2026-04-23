@@ -13,27 +13,30 @@ def scan():
     url = request.form.get("url")
 
     if not url:
-        return render_template("index.html", error="Please enter a valid URL.")
+        return render_template("index.html", error="Please enter a valid URL")
 
+    # NO change in logic
     result = run_scanner(url)
 
     return render_template("result.html", url=url, result=result)
 
-# ----------- FIXED ROUTE -----------
+# 🔹 Separate page ONLY for screenshots
 @app.route("/screenshots")
-def show_screenshots():
-    folder = "static/screenshots"   # FIXED PATH
+def screenshots():
+    folder = "static/screenshots"
 
     if not os.path.exists(folder):
-        return render_template("screenshots.html", images=[])
+        images = []
+    else:
+        images = [
+            f"screenshots/{img}"
+            for img in os.listdir(folder)
+            if img.endswith(".png")
+        ]
 
-    images = [f for f in os.listdir(folder) if f.endswith(".png")]
-    images.sort()
+    return render_template("screenshots.html", images=images)
 
-    image_paths = [f"static/screenshots/{img}" for img in images]
-
-    return render_template("screenshots.html", images=image_paths)
-# -----------------------------------
+import os
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)

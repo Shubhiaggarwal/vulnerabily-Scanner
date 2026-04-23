@@ -1,9 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Web Vulnerability Scanner</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .loader {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -14,11 +43,25 @@
         <div class="error">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="/scan">
-        <input type="text" name="url" placeholder="Enter website URL (https://example.com)">
-        <button type="submit">Scan</button>
+    <form method="POST" action="/scan" onsubmit="startScan()">
+        <input type="text" name="url" placeholder="Enter website URL (https://example.com)" required>
+        <button type="submit" id="scanBtn">Scan</button>
     </form>
+
+    <!-- Loader Section -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p><strong>Scanning in progress...</strong><br>Please wait while vulnerabilities are being analyzed.</p>
+    </div>
 </div>
+
+<script>
+    function startScan() {
+        document.getElementById("scanBtn").disabled = true;
+        document.getElementById("scanBtn").innerText = "Scanning...";
+        document.getElementById("loader").style.display = "block";
+    }
+</script>
 
 </body>
 </html>
